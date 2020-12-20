@@ -10,6 +10,7 @@
 		"Other"
 	],
 	"icon": "icon.png",
+	"publisher": "imomo",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/imomom/vscodesample"
