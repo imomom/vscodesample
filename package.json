@@ -9,6 +9,14 @@
 	"categories": [
 		"Other"
 	],
+	"icon": "icon.png",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/imomom/vscodesample"
+	},
+	"bugs": {
+		"url": "https://github.com/imomom/vscodesample/issues"
+	},
 	"activationEvents": [
 		"onCommand:extention.addsample",
 		"onCommand:extention.delsample"
