@@ -1,8 +1,8 @@
 {
 	"name": "editsamplecase",
 	"displayName": "editSampleCase",
-	"description": "",
-	"version": "0.0.1",
+	"description": "競技プログラミングにおいて一部作業を自動化してくれるonline-judge-toolsのサンプルケースにテストケースを追加するのを簡単にします",
+	"version": "0.0.2",
 	"engines": {
 		"vscode": "^1.52.0"
 	},
@@ -27,11 +27,13 @@
 		"commands": [
 			{
 				"command": "extention.addsample",
-				"title": "addsample"
+				"title": "addsample",
+				"category": "サンプルの追加/削除"
 			},
 			{
 				"command": "extention.delsample",
-				"title": "delsample"
+				"title": "delsample",
+				"category": "サンプルの追加/削除"
 			}		
 		]
 	},
