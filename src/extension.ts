@@ -1,10 +1,31 @@
 //モジュール 'vscode'にはVSCode拡張性APIが含まれています
 //モジュールをインポートし、以下のコードでエイリアスvscodeを使用して参照します
 import * as vscode from 'vscode';
-import {writeFile, readdir,unlink} from "fs";
+import {writeFile, readdir,unlink, fstat, stat, existsSync} from "fs";
 
 //このメソッドは、拡張機能がアクティブ化されたときに呼び出されます
 //コマンドが最初に実行されたときに拡張機能がアクティブ化されます
+function makefiles(path: string){
+	// return new Promise(function(resolve, reject){
+	// 		writeFile(path,Buffer.from(''),function(error){
+	// 			if(error)reject(error);
+	// 		});
+	// 		resolve("ok");
+	// })
+	writeFile(path + '.in',Buffer.from(''),function(error){console.log(error)});
+	writeFile(path + '.out',Buffer.from(''),function(error){console.log(error)});
+}
+function openfiles(path :string){
+	vscode.window.showTextDocument(vscode.Uri.parse(path+'.out'),{
+		preserveFocus: false,
+		preview: false
+	}).then(_=>{
+		vscode.window.showTextDocument(vscode.Uri.parse(path+'.in'),{
+			preserveFocus: false,
+			preview: true,
+		}).then(_=>{});
+	})
+}
 export function activate(context: vscode.ExtensionContext) {
 
 //コンソールを使用して診断情報（console.log）とエラー（console.error）を出力します
@@ -24,40 +45,20 @@ export function activate(context: vscode.ExtensionContext) {
 				vscode.window.showWarningMessage("testフォルダがありません 問題ソースコードを開いていない可能性があります");
 				return;
 			}else{
-
 				let cntsample = filecnt.length/2 + 1;
 				console.log(cntsample);
 				let writeFilePath = sampleDir+'/sample-'+cntsample;
-				vscode.window.showInputBox({
-					ignoreFocusOut:true,
-					placeHolder:"サンプルの入力値を入力",
-					prompt:"サンプルの入力値を入力 改行はカンマで区切ってください"
-				}).then((input)=>{
-					if(input == undefined || input == ""){
-						vscode.window.showErrorMessage("値が空です");
-						return;
-					}else{
-						vscode.window.showInputBox({
-							ignoreFocusOut:true,
-							placeHolder:"サンプルの出力値を入力",
-							prompt:"サンプルの出力値を入力 改行はカンマで区切ってください"
-						}).then((output)=>{
-							if(output == undefined || output == ""){
-								vscode.window.showErrorMessage("値が空です");
-								return;
-							}else{
-								
-								writeFile(writeFilePath+'.in',Buffer.from((input.replace(/,/g,'\n'))+"\n"),(_)=>{});
-								writeFile(writeFilePath+'.out',Buffer.from((output.replace(/,/g,'\n'))+"\n"),(_)=>{});
-								vscode.window.showInformationMessage('サンプルの追加が完了しました');
-							}
-						});
-					}
-				});
+				makefiles(writeFilePath);
+				//非同期処理何も分からん　回避策です・・・
+				if(existsSync(writeFilePath+'.in') && existsSync(writeFilePath+'.out')){
+					openfiles(writeFilePath);
+				}else vscode.window.showErrorMessage("ファイルを開けませんでした。opensampleコマンドをお試しください");
 			}				
 		});
 	});
 context.subscriptions.push(addsample);
+//私魔女のキキ！こっちはコールバック地獄のファイル削除コマンド！
+//修正したいよね　また力があるときに・・・
 let delsample = vscode.commands.registerCommand('extention.delsample', () => {
 	//ここに配置したコードは、コマンドが実行されるたびに実行されます
 		let ss = vscode.window.visibleTextEditors[0].document.uri.path;
@@ -104,6 +105,27 @@ let delsample = vscode.commands.registerCommand('extention.delsample', () => {
 	});
 });
 context.subscriptions.push(delsample);
+let opensample = vscode.commands.registerCommand('extention.opensample', () => {
+	//最後のファイルを開く処理
+		let currentPath = vscode.window.visibleTextEditors[0].document.uri.path;
+		let sampleDir = currentPath.slice(0,currentPath.lastIndexOf('/'))+'/test';
+		console.log(sampleDir.toString());
+		readdir(sampleDir,(err,filecnt)=>{
+			if(err){
+				vscode.window.showWarningMessage("testフォルダがありません 問題ソースコードを開いていない可能性があります");
+				return;
+			}else{
+				let cntsample = filecnt.length/2;
+				console.log(cntsample);
+				let writeFilePath = sampleDir+'/sample-'+cntsample;
+				//非同期処理何も分からん　回避策です・・・
+				if(existsSync(writeFilePath+'.in') && existsSync(writeFilePath+'.out')){
+					openfiles(writeFilePath);
+				}else vscode.window.showErrorMessage("ファイルを開けませんでした。opensampleコマンドをお試しください");
+			}				
+		});
+	});
+context.subscriptions.push(opensample);
 }
 
 //このメソッドは、拡張機能が非アクティブ化されたときに呼び出されます
